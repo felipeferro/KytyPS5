@@ -1,11 +1,43 @@
-# KytyPS5
+# KytyPS5 — Mesh Shader Fallback + ASTRO BOT & NVIDIA Fixes
 
-[![Build KytyPS5 (Windows)](https://img.shields.io/github/check-runs/KytyPS5/KytyPS5/main?nameFilter=Build%20KytyPS5%20%28Windows%29&label=Build%20KytyPS5%20%28Windows%29)](https://github.com/KytyPS5/KytyPS5/actions/workflows/build.yml)
-[![Build KytyPS5 (Linux)](https://img.shields.io/github/check-runs/KytyPS5/KytyPS5/main?nameFilter=Build%20KytyPS5%20%28Linux%29&label=Build%20KytyPS5%20%28Linux%29)](https://github.com/KytyPS5/KytyPS5/actions/workflows/build.yml)
-[![Build KytyPS5 (macOS)](https://img.shields.io/github/check-runs/KytyPS5/KytyPS5/main?nameFilter=Build%20KytyPS5%20%28macOS%29&label=Build%20KytyPS5%20%28macOS%29)](https://github.com/KytyPS5/KytyPS5/actions/workflows/build.yml)
+[![Build KytyPS5 (Windows)](https://img.shields.io/github/check-runs/felipeferro/KytyPS5/rdna1-work?nameFilter=Build%20KytyPS5%20%28Windows%29&label=Build%20KytyPS5%20%28Windows%29)](https://github.com/felipeferro/KytyPS5/actions/workflows/build.yml)
+[![Build KytyPS5 (Linux)](https://img.shields.io/github/check-runs/felipeferro/KytyPS5/rdna1-work?nameFilter=Build%20KytyPS5%20%28Linux%29&label=Build%20KytyPS5%20%28Linux%29)](https://github.com/felipeferro/KytyPS5/actions/workflows/build.yml)
+[![Build KytyPS5 (macOS)](https://img.shields.io/github/check-runs/felipeferro/KytyPS5/rdna1-work?nameFilter=Build%20KytyPS5%20%28macOS%29&label=Build%20KytyPS5%20%28macOS%29)](https://github.com/felipeferro/KytyPS5/actions/workflows/build.yml)
+[![Releases](https://img.shields.io/github/v/release/felipeferro/KytyPS5?include_prereleases&label=Download%20Release)](https://github.com/felipeferro/KytyPS5/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%20x64%20%7C%20Linux%20x64%20%7C%20macOS%20x86__64-0078D4.svg)](#system-requirements)
-[![Status](https://img.shields.io/badge/status-active%20development-orange.svg)](#current-status)
 [![License](https://img.shields.io/badge/license-GPL--2.0-blue.svg)](LICENSE)
+
+> [!TIP]
+> **Pre-built binaries (Windows, Linux, macOS):** Download the latest release directly from [**Releases**](https://github.com/felipeferro/KytyPS5/releases).
+
+## About This Fork (EN) / Sobre Este Fork (PT-BR)
+
+### English
+This community fork combines experimental **Mesh Shader Fallback** support with pending upstream fixes so users with older GPUs (Pascal, RDNA 1, Polaris) and NVIDIA GPUs can boot and test games like **ASTRO BOT (`PPSA21567`)** without waiting for separate PRs to be merged:
+
+1. **Mesh Shader Fallback (`VK_EXT_mesh_shader` -> Compute + Vertex Shader)** *(based on [`AbbasBHF/KytyPS5` `rdna1-work`](https://github.com/AbbasBHF/KytyPS5/tree/rdna1-work), issue [`#1447`](https://github.com/KytyPS5/KytyPS5/issues/1447))*:
+   - Emulates PS5 NGG/Mesh Shaders via Compute + Vertex shader lowering when hardware `VK_EXT_mesh_shader` is unavailable.
+   - Makes `VK_KHR_fragment_shader_barycentric` optional (`fsb` fallback).
+   - Allows GPUs such as **NVIDIA GeForce GTX 10-series (GTX 1060 / 1070 / 1080)**, **GTX 1650**, **AMD Radeon RX 5000 (RDNA 1)**, and **RX 400/500 (Polaris)** to get past `Fatal Error: Not implemented (!m_graphics.mesh_shader_enabled)`.
+2. **ASTRO BOT (`PPSA21567`) Startup Crash Fix** *([PR `#1528`](https://github.com/KytyPS5/KytyPS5/pull/1528))*:
+   - Guards against null root and nested SRT table pointers in `SrtWalker.cpp`, fixing the immediate `0x0000000000000058` access violation on startup.
+3. **NVIDIA Sampler `maxAnisotropy` Fix** *([PR `#1625`](https://github.com/KytyPS5/KytyPS5/pull/1625))*:
+   - Clamps `maxAnisotropy` to `[1.0f, maxSamplerAnisotropy]` in `descriptors.cpp`, preventing `vkCreateSampler` from failing with `VK_ERROR_OUT_OF_HOST_MEMORY` on NVIDIA drivers.
+
+---
+
+### Português (PT-BR)
+Este fork comunitário reúne o **Fallback de Mesh Shader** com correções críticas que ainda estão em PRs abertos no repositório oficial, permitindo rodar e testar jogos como **ASTRO BOT (`PPSA21567`)** em placas de vídeo mais antigas (Pascal, RDNA 1, Polaris) e GPUs NVIDIA:
+
+1. **Fallback de Mesh Shader (`VK_EXT_mesh_shader` -> Compute + Vertex Shader)** *(baseado em [`AbbasBHF/KytyPS5` `rdna1-work`](https://github.com/AbbasBHF/KytyPS5/tree/rdna1-work), issue [`#1447`](https://github.com/KytyPS5/KytyPS5/issues/1447))*:
+   - Converte Mesh Shaders do PS5 em Compute + Vertex Shaders quando a GPU não possui `VK_EXT_mesh_shader` via hardware, além de tornar `fragmentShaderBarycentric` opcional.
+   - Permite que placas como **NVIDIA GTX série 10 (GTX 1060 / 1070 / 1080)**, **GTX 1650**, **AMD RX série 5000 (RDNA 1)** e **RX 400/500 (Polaris)** passem do erro `Fatal Error: Not implemented (!m_graphics.mesh_shader_enabled)`.
+2. **Correção do Crash de Inicialização no ASTRO BOT (`PPSA21567`)** *([PR `#1528`](https://github.com/KytyPS5/KytyPS5/pull/1528))*:
+   - Ignora ponteiros nulos na tabela SRT em `SrtWalker.cpp`, corrigindo a falha de violação de acesso (`address=0x0000000000000058`) ao iniciar o jogo.
+3. **Correção de Sampler `maxAnisotropy` em GPUs NVIDIA** *([PR `#1625`](https://github.com/KytyPS5/KytyPS5/pull/1625))*:
+   - Limita `maxAnisotropy` ao intervalo `[1.0f, maxSamplerAnisotropy]` em `descriptors.cpp`, evitando falhas de driver (`VK_ERROR_OUT_OF_HOST_MEMORY`) em placas NVIDIA.
+
+---
 
 **[Weekly updates](https://github.com/KytyPS5/KytyPS5/discussions/862)** â€” game progress, recent fixes, and ongoing development.
 
