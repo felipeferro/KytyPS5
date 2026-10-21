@@ -50,6 +50,7 @@ jobs:
           $extractPath = "$env:RUNNER_TEMP\glslang"
           Invoke-WebRequest -Uri "https://github.com/KhronosGroup/glslang/releases/download/16.6.0/glslang-16.6.0-windows-x86_64-release.zip" -OutFile $zipPath
           Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
+          Copy-Item "$extractPath\bin\glslang.exe" "$extractPath\bin\glslangValidator.exe"
           "$extractPath\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Install Qt 6.10.3
