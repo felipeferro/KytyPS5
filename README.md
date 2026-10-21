@@ -1,4 +1,4 @@
-# KytyPS5 � Mesh Shader Fallback + ASTRO BOT & NVIDIA Fixes
+# KytyPS5 — Mesh Shader Fallback + ASTRO BOT & NVIDIA Fixes
 
 [![Build KytyPS5 (Windows)](https://img.shields.io/github/check-runs/felipeferro/KytyPS5/rdna1-work?nameFilter=Build%20KytyPS5%20%28Windows%29&label=Build%20KytyPS5%20%28Windows%29)](https://github.com/felipeferro/KytyPS5/actions/workflows/build.yml)
 [![Build KytyPS5 (Linux)](https://img.shields.io/github/check-runs/felipeferro/KytyPS5/rdna1-work?nameFilter=Build%20KytyPS5%20%28Linux%29&label=Build%20KytyPS5%20%28Linux%29)](https://github.com/felipeferro/KytyPS5/actions/workflows/build.yml)
@@ -26,22 +26,22 @@ This community fork combines experimental **Mesh Shader Fallback** support with 
 
 ---
 
-### Portugu�s (PT-BR)
-Este fork comunit�rio re�ne o **Fallback de Mesh Shader** com corre��es cr�ticas que ainda est�o em PRs abertos no reposit�rio oficial, permitindo rodar e testar jogos como **ASTRO BOT (`PPSA21567`)** em placas de v�deo mais antigas (Pascal, RDNA 1, Polaris) e GPUs NVIDIA:
+### Português (PT-BR)
+Este fork comunitário reúne o **Fallback de Mesh Shader** com correções críticas que ainda estão em PRs abertos no repositório oficial, permitindo rodar e testar jogos como **ASTRO BOT (`PPSA21567`)** em placas de vídeo mais antigas (Pascal, RDNA 1, Polaris) e GPUs NVIDIA:
 
 1. **Fallback de Mesh Shader (`VK_EXT_mesh_shader` -> Compute + Vertex Shader)** *(baseado em [`AbbasBHF/KytyPS5` `rdna1-work`](https://github.com/AbbasBHF/KytyPS5/tree/rdna1-work), issue [`#1447`](https://github.com/KytyPS5/KytyPS5/issues/1447))*:
-   - Converte Mesh Shaders do PS5 em Compute + Vertex Shaders quando a GPU n�o possui `VK_EXT_mesh_shader` via hardware, al�m de tornar `fragmentShaderBarycentric` opcional.
-   - Permite que placas como **NVIDIA GTX s�rie 10 (GTX 1060 / 1070 / 1080)**, **GTX 1650**, **AMD RX s�rie 5000 (RDNA 1)** e **RX 400/500 (Polaris)** passem do erro `Fatal Error: Not implemented (!m_graphics.mesh_shader_enabled)`.
-2. **Corre��o do Crash de Inicializa��o no ASTRO BOT (`PPSA21567`)** *([PR `#1528`](https://github.com/KytyPS5/KytyPS5/pull/1528))*:
-   - Ignora ponteiros nulos na tabela SRT em `SrtWalker.cpp`, corrigindo a falha de viola��o de acesso (`address=0x0000000000000058`) ao iniciar o jogo.
-3. **Corre��o de Sampler `maxAnisotropy` em GPUs NVIDIA** *([PR `#1625`](https://github.com/KytyPS5/KytyPS5/pull/1625))*:
+   - Converte Mesh Shaders do PS5 em Compute + Vertex Shaders quando a GPU não possui `VK_EXT_mesh_shader` via hardware, além de tornar `fragmentShaderBarycentric` opcional.
+   - Permite que placas como **NVIDIA GTX série 10 (GTX 1060 / 1070 / 1080)**, **GTX 1650**, **AMD RX série 5000 (RDNA 1)** e **RX 400/500 (Polaris)** passem do erro `Fatal Error: Not implemented (!m_graphics.mesh_shader_enabled)`.
+2. **Correção do Crash de Inicialização no ASTRO BOT (`PPSA21567`)** *([PR `#1528`](https://github.com/KytyPS5/KytyPS5/pull/1528))*:
+   - Ignora ponteiros nulos na tabela SRT em `SrtWalker.cpp`, corrigindo a falha de violação de acesso (`address=0x0000000000000058`) ao iniciar o jogo.
+3. **Correção de Sampler `maxAnisotropy` em GPUs NVIDIA** *([PR `#1625`](https://github.com/KytyPS5/KytyPS5/pull/1625))*:
    - Limita `maxAnisotropy` ao intervalo `[1.0f, maxSamplerAnisotropy]` em `descriptors.cpp`, evitando falhas de driver (`VK_ERROR_OUT_OF_HOST_MEMORY`) em placas NVIDIA.
 
 ---
 
-**[Weekly updates](https://github.com/KytyPS5/KytyPS5/discussions/862)** — game progress, recent fixes, and ongoing development.
+**[Weekly updates](https://github.com/KytyPS5/KytyPS5/discussions/862)** â€” game progress, recent fixes, and ongoing development.
 
-**[Development on Discord](https://discord.gg/UNrkMqGaBg)** — KytyPS5 development.
+**[Development on Discord](https://discord.gg/UNrkMqGaBg)** â€” KytyPS5 development.
 
 KytyPS5 is a free and open-source PlayStation 5 translation layer written in C++ for Windows
 and Linux, with experimental macOS support. It is based on a heavily modified version of
@@ -53,6 +53,57 @@ can change significantly between builds.
 > not distribute games or copyrighted system software. Use only game files that you have obtained
 > legally.
 
+## Test Status & Known Issues (EN) / Status dos Testes e Problemas Conhecidos (PT-BR)
+
+> [!WARNING]
+> **Experimental Build (Work in Progress):** This fork gets **ASTRO BOT (`PPSA21567` v1.018)** past the initial startup crashes and through the intro video on older/non-Mesh-Shader GPUs, but the game is **not yet playable in-game** on NVIDIA Pascal due to a post-intro `VK_ERROR_DEVICE_LOST`.
+
+### Test Environment / Ambiente de Teste
+- **Game / Jogo:** ASTRO BOT (`PPSA21567`, EU, v1.018 unmodified `Original_files`)
+- **CPU:** AMD Ryzen 7 5700X (8C/16T)
+- **GPU:** NVIDIA GeForce GTX 1060 6GB (Pascal — no hardware `VK_EXT_mesh_shader` or `VK_KHR_fragment_shader_barycentric`)
+- **RAM:** 16 GB
+
+### Progress Summary / Resumo do Progresso
+
+| Stage / Etapa | Official Build (`f492027`) | This Fork (`rdna1-work` + Fixes) | Details / Detalhes |
+| :--- | :---: | :---: | :--- |
+| **1. Startup SRT Table Walk** (`runtimeLinker.cpp:715` / `SrtWalker.cpp`) | ❌ Crashes (`0x0000000000000058` null pointer) | ✅ **Fixed** | Fixed via null root & nested SRT pointer guard ([PR `#1528`](https://github.com/KytyPS5/KytyPS5/pull/1528)). |
+| **2. Pipeline Creation without Mesh Shaders** (`pipelineCache.cpp:698`) | ❌ Fatal Error (`!m_graphics.mesh_shader_enabled`) | ✅ **Fixed** | Fixed via Compute + Vertex Shader lowering (`rdna1-work`, [Issue `#1447`](https://github.com/KytyPS5/KytyPS5/issues/1447)). |
+| **3. NVIDIA Sampler Creation** (`descriptors.cpp`) | ❌ Driver crash on invalid `maxAnisotropy` | ✅ **Fixed** | Clamped `maxAnisotropy` to `[1.0f, maxSamplerAnisotropy]` ([PR `#1625`](https://github.com/KytyPS5/KytyPS5/pull/1625)). |
+| **4. Boot & Intro Video (`AvPlayer`)** | ❌ Unreachable | ✅ **Working** | Compiles `14 VS \| 21 PS \| 38 CS \| 1 GS` and plays intro video to completion (`AvPlayer video stopped`, `tick=338218`). |
+| **5. Post-Intro 3D Transition** (`commandScheduler.cpp:582`) | ❌ Unreachable | ⚠️ **Known Issue (`VK_ERROR_DEVICE_LOST`)** | Fails on `vkQueueSubmit` during 3D scene transition (see details below). |
+
+---
+
+### Documented Errors & Recommended Settings / Erros Documentados e Configurações Recomendadas
+
+#### 1. Post-Intro `VK_ERROR_DEVICE_LOST` (`commandScheduler.cpp:582`)
+```text
+Shaders: VS 14 | PS 21 | CS 38 | GS 1 | LS 0 | HS 0 | TES 0
+vkQueueSubmit failed: ErrorDeviceLost (-4), tick=338218 debug_op=0 debug_submit=8908 args=4096,1,1,97,0x0000000908e6aa00 shader_hash=0x0000000000000000
+Not implemented (result != vk::Result::eSuccess) in src\graphics\host_gpu\renderer\commandScheduler.cpp:582
+```
+- **EN:** Occurs immediately after `AvPlayer video stopped` when transitioning to the 3D scene (`DispatchDirect` with `4096x1x1` thread groups). Matches upstream issues [`#1498`](https://github.com/KytyPS5/KytyPS5/issues/1498) and [`#1511`](https://github.com/KytyPS5/KytyPS5/issues/1511) on NVIDIA GPUs:
+  - **Cause A (Wave64 on Subgroup-32 NVIDIA GPUs):** PS5 shaders run in `Wave64`, which is emulated with 2 lanes per invocation on NVIDIA `Warp32` hardware; LDS spinlocks (`OpAtomicExchange` on `lds_dwords`) or unbounded shader loops can deadlock a warp and trigger Windows TDR (`ErrorDeviceLost`).
+  - **Cause B (Per-thread LDS private array size on NVIDIA):** Vertex/Pixel shaders emulating LDS allocate a fixed `8192 dword` (32 KB) private array per thread, which can overflow NVIDIA local memory reservations when `VS 14` / `PS 21` are dispatched.
+- **PT-BR:** Ocorre logo após o término do vídeo de abertura (`AvPlayer video stopped`) na transição para a cena 3D (`DispatchDirect` de `4096x1x1` grupos). Corresponde ao comportamento documentado nas issues oficiais [`#1498`](https://github.com/KytyPS5/KytyPS5/issues/1498) e [`#1511`](https://github.com/KytyPS5/KytyPS5/issues/1511) em placas NVIDIA (deadlock na emulação de *Wave64* sobre *Warp32* em spinlocks LDS e alocação fixa de 32 KB de LDS local por thread em shaders gráficos).
+
+#### 2. `SPIR-V validation failed` when `Shader validation` is enabled (`pipelineCache.cpp:333`)
+```text
+ShaderRecompiler CS failed hash=0x503d7f066a496c3c: SPIR-V validation failed
+ in src\graphics\host_gpu\renderer\pipeline\pipelineCache.cpp:333
+```
+- **EN:** Enabling **`Shader validation`** in the Launcher runs strict `spirv-val` checks and aborts at `CS 16` (`0x503d7f066a496c3c`, BVH compute shader) before the intro video. **Keep `Shader validation` disabled** so the shader is passed directly to the Vulkan driver.
+- **PT-BR:** Ativar a opção **`Shader validation`** no Launcher executa o validador estrito `spirv-val` e aborta a execução logo no `CS 16` (`0x503d7f066a496c3c`) antes do vídeo de abertura. **Mantenha `Shader validation` desmarcado** nas configurações.
+
+#### 3. Recommended Launcher Settings / Configurações Recomendadas no Launcher
+- ✅ **`AMD CPU compatibility`:** Enable on AMD Ryzen CPUs (patches `VRSQRTPS` instructions in `eboot.bin`). / Ativar em processadores AMD Ryzen.
+- ✅ **`Skip BVH intersections`:** Enable to bypass heavy software BVH ray-tracing intersections. / Ativar para pular interseções pesadas de Ray Tracing por software.
+- ❌ **`Shader validation` & `Vulkan validation`:** Keep **disabled**. / Manter **desmarcados**.
+- ℹ️ **`Printf direction`:** Set to **`Console`** or **`File`** if you want full diagnostic logs (`Device fault report`). / Mudar para `Console` ou `File` para visualizar logs detalhados.
+
+---
 ## Current Status
 
 KytyPS5 can boot 2D and 3D games, including titles built with Unreal Engine
@@ -153,11 +204,11 @@ as the primary instruction-encoding reference when working on shader decoding an
 
 Important areas of the codebase:
 
-- [`src/graphics/shader/recompiler`](src/graphics/shader/recompiler) — instruction decoding,
+- [`src/graphics/shader/recompiler`](src/graphics/shader/recompiler) â€” instruction decoding,
   intermediate representation, control flow, resource tracking, and SPIR-V emission
-- [`src/graphics/guest_gpu`](src/graphics/guest_gpu) — PS5 (Prospero) GPU formats and command processing
-- [`src/graphics/host_gpu`](src/graphics/host_gpu) — Vulkan host backend and resource management
-- [`tests`](tests) — focused memory, shader, and resource-tracking regression tests
+- [`src/graphics/guest_gpu`](src/graphics/guest_gpu) â€” PS5 (Prospero) GPU formats and command processing
+- [`src/graphics/host_gpu`](src/graphics/host_gpu) â€” Vulkan host backend and resource management
+- [`tests`](tests) â€” focused memory, shader, and resource-tracking regression tests
 
 The renderer targets Vulkan 1.3. Keep shader changes aligned with both the RDNA 2 ISA semantics and
 the Vulkan/SPIR-V validation rules.
@@ -345,7 +396,7 @@ cmake --install _Build/macos --prefix _Build/macos/install
 
 The build re-signs `kyty_emulator` with the JIT entitlements it needs to execute translated
 guest code; no manual signing step is required. When the launcher is built, the installation
-also produces `_Build/macos/install/KytyPS5.app` — double-click to launch the GUI.
+also produces `_Build/macos/install/KytyPS5.app` â€” double-click to launch the GUI.
 A flat `kyty_emulator` is kept for CLI usage.
 
 Vulkan comes from MoltenVK. Download `MoltenVK-macos.tar` from the
@@ -473,8 +524,8 @@ licenses included with those components.
 
 ## Special Thanks
 
-- [InoriRus/Kyty](https://github.com/InoriRus/Kyty) — KytyPS5 is based on a heavily modified version
+- [InoriRus/Kyty](https://github.com/InoriRus/Kyty) â€” KytyPS5 is based on a heavily modified version
   of the original Kyty project.
-- [shadps4-emu/shadPS4](https://github.com/shadps4-emu/shadPS4) — reference for understanding PS4
+- [shadps4-emu/shadPS4](https://github.com/shadps4-emu/shadPS4) â€” reference for understanding PS4
   memory behavior, GPU resource aliasing, cache coherency,
   and the AVPlayer implementation.
